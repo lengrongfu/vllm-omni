@@ -66,9 +66,8 @@ from vllm.inputs.data import PromptType
 from vllm.logger import init_logger
 from vllm.outputs import RequestOutput
 from vllm.reasoning import ReasoningParser
-from vllm.renderers import merge_kwargs
+from vllm.renderers import BaseRenderer, merge_kwargs
 from vllm.renderers.inputs import TokPrompt
-from vllm.renderers import BaseRenderer
 from vllm.sampling_params import SamplingParams
 from vllm.tokenizers import TokenizerLike
 from vllm.tokenizers import TokenizerLike as AnyTokenizer
