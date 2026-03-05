@@ -18,6 +18,7 @@ from http import HTTPStatus
 from typing import Annotated, Any, cast
 
 import httpx
+import numpy as np
 import vllm.envs as envs
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -1397,6 +1398,19 @@ def _update_if_not_none(object: any, key: str, val: any) -> None:
         setattr(object, key, val)
 
 
+def _normalize_image(image: Any) -> Any:
+    """Normalize a single image output to a PIL-compatible format."""
+    if isinstance(image, np.ndarray):
+        while image.ndim > 3:
+            image = image[0]
+        if np.issubdtype(image.dtype, np.floating):
+            if image.min() < 0:
+                image = np.clip(image, -1.0, 1.0) * 0.5 + 0.5
+            image = (np.clip(image, 0.0, 1.0) * 255).astype(np.uint8)
+        image = Image.fromarray(image)
+    return image
+
+
 def _extract_images_from_result(result: Any) -> list[Any]:
     images = []
     if hasattr(result, "images") and result.images:
@@ -1407,7 +1421,9 @@ def _extract_images_from_result(result: Any) -> list[Any]:
             images = request_output["images"]
         elif hasattr(request_output, "images") and request_output.images:
             images = request_output.images
-    return images
+    if isinstance(images[0], np.ndarray):
+        images = images[0]
+    return [_normalize_image(img) for img in images]
 
 
 async def _load_input_images(
