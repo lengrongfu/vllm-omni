@@ -15,7 +15,7 @@ from argparse import Namespace
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from http import HTTPStatus
-from typing import Annotated, Any, Union, cast
+from typing import Annotated, Any, cast
 
 import httpx
 import vllm.envs as envs
@@ -975,7 +975,9 @@ async def show_available_models(raw_request: Request) -> JSONResponse:
         HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
     },
 )
-async def generate_images(request: ImageGenerationRequest, raw_request: Request) -> ImageGenerationResponse |StreamingResponse:
+async def generate_images(
+    request: ImageGenerationRequest, raw_request: Request
+) -> ImageGenerationResponse | StreamingResponse:
     """Generate images from text prompts using diffusion models.
 
     OpenAI DALL-E compatible endpoint for text-to-image generation.
@@ -1650,7 +1652,7 @@ async def create_video(
     seed: int | None = Form(default=None),
     negative_prompt: str | None = Form(default=None),
     lora: str | None = Form(default=None),
-) -> Union[VideoGenerationResponse,StreamingResponse]:
+) -> VideoGenerationResponse | StreamingResponse:
     """OpenAI-style video create endpoint (multipart form-data)."""
     input_reference_bytes = await input_reference.read() if input_reference is not None else None
 

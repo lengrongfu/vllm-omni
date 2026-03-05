@@ -8,12 +8,12 @@ for text-to-image generation, with vllm-omni specific extensions.
 """
 
 import base64
-from enum import Enum
-from http import HTTPStatus
 import io
-from typing import Any
 import uuid
 import zipfile
+from enum import Enum
+from http import HTTPStatus
+from typing import Any
 
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -141,33 +141,33 @@ class ImageGenerationResponse(BaseModel):
     def stream_response(self) -> StreamingResponse:
         if not self.data or not self.data[0].b64_json:
             raise HTTPException(
-                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-                    detail="No image data available for file response.",
-                )
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                detail="No image data available for file response.",
+            )
         if len(self.data) == 1:
-                image_bytes = base64.b64decode(self.data[0].b64_json)
-                filename = f"image_{uuid.uuid4().hex[:8]}.png"
-                return StreamingResponse(
-                    io.BytesIO(image_bytes),
-                    media_type="image/png",
-                    headers={
-                        "Content-Disposition": f'attachment; filename="{filename}"',
-                        "Content-Length": str(len(image_bytes)),
-                    },
-                )
+            image_bytes = base64.b64decode(self.data[0].b64_json)
+            filename = f"image_{uuid.uuid4().hex[:8]}.png"
+            return StreamingResponse(
+                io.BytesIO(image_bytes),
+                media_type="image/png",
+                headers={
+                    "Content-Disposition": f'attachment; filename="{filename}"',
+                    "Content-Length": str(len(image_bytes)),
+                },
+            )
         else:
-                zip_buffer = io.BytesIO()
-                with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                    for idx, item in enumerate(response.data):
-                        if item.b64_json:
-                            zf.writestr(f"image_{idx}.png", base64.b64decode(item.b64_json))
-                zip_bytes = zip_buffer.getvalue()
-                filename = f"images_{uuid.uuid4().hex[:8]}.zip"
-                return StreamingResponse(
-                    io.BytesIO(zip_bytes),
-                    media_type="application/zip",
-                    headers={
-                        "Content-Disposition": f'attachment; filename="{filename}"',
-                        "Content-Length": str(len(zip_bytes)),
-                    },
-                )            
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                for idx, item in enumerate(response.data):
+                    if item.b64_json:
+                        zf.writestr(f"image_{idx}.png", base64.b64decode(item.b64_json))
+            zip_bytes = zip_buffer.getvalue()
+            filename = f"images_{uuid.uuid4().hex[:8]}.zip"
+            return StreamingResponse(
+                io.BytesIO(zip_bytes),
+                media_type="application/zip",
+                headers={
+                    "Content-Disposition": f'attachment; filename="{filename}"',
+                    "Content-Length": str(len(zip_bytes)),
+                },
+            )

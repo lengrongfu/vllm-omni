@@ -9,9 +9,9 @@ video models (e.g., Wan2.2).
 """
 
 import base64
+import io
 from enum import Enum
 from http import HTTPStatus
-import io
 from typing import Any
 
 from fastapi import HTTPException
@@ -176,12 +176,15 @@ class VideoGenerationResponse(BaseModel):
     def stream_response(self) -> StreamingResponse:
         if not self.data or not self.data[0].b64_json:
             raise HTTPException(
-                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-                    detail="No video data available for file response.",
-                )
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                detail="No video data available for file response.",
+            )
         video_bytes = base64.b64decode(self.data[0].b64_json)
         return StreamingResponse(
-                io.BytesIO(video_bytes),
-                media_type="video/mp4",
-                headers={"Content-Disposition": "attachment; filename=video.mp4","Content-Length": str(len(video_bytes)),},
-            )    
+            io.BytesIO(video_bytes),
+            media_type="video/mp4",
+            headers={
+                "Content-Disposition": "attachment; filename=video.mp4",
+                "Content-Length": str(len(video_bytes)),
+            },
+        )
