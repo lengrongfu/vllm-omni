@@ -15,7 +15,7 @@ from argparse import Namespace
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from http import HTTPStatus
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Union, cast
 
 import httpx
 import vllm.envs as envs
@@ -92,10 +92,12 @@ from vllm_omni.entrypoints.openai.protocol.images import (
     ImageData,
     ImageGenerationRequest,
     ImageGenerationResponse,
+    ResponseFormat,
 )
 from vllm_omni.entrypoints.openai.protocol.videos import (
     VideoGenerationRequest,
     VideoGenerationResponse,
+    VideoResponseFormat,
 )
 from vllm_omni.entrypoints.openai.serving_chat import OmniOpenAIServingChat
 from vllm_omni.entrypoints.openai.serving_speech import OmniOpenAIServingSpeech
@@ -965,6 +967,7 @@ async def show_available_models(raw_request: Request) -> JSONResponse:
 @router.post(
     "/v1/images/generations",
     dependencies=[Depends(validate_json_request)],
+    response_model=None,
     responses={
         HTTPStatus.OK.value: {"model": ImageGenerationResponse},
         HTTPStatus.BAD_REQUEST.value: {"model": ErrorResponse},
@@ -972,7 +975,7 @@ async def show_available_models(raw_request: Request) -> JSONResponse:
         HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
     },
 )
-async def generate_images(request: ImageGenerationRequest, raw_request: Request) -> ImageGenerationResponse:
+async def generate_images(request: ImageGenerationRequest, raw_request: Request) -> ImageGenerationResponse |StreamingResponse:
     """Generate images from text prompts using diffusion models.
 
     OpenAI DALL-E compatible endpoint for text-to-image generation.
@@ -1060,10 +1063,14 @@ async def generate_images(request: ImageGenerationRequest, raw_request: Request)
         # Encode images to base64
         image_data = [ImageData(b64_json=encode_image_base64(img), revised_prompt=None) for img in images]
 
-        return ImageGenerationResponse(
+        response = ImageGenerationResponse(
             created=int(time.time()),
             data=image_data,
         )
+        if request.response_format != ResponseFormat.FILE:
+            return response
+
+        return response.stream_response()
 
     except HTTPException:
         # Re-raise HTTPExceptions as-is
@@ -1575,7 +1582,7 @@ async def _run_video_generation(
     raw_request: Request,
     *,
     input_reference_bytes: bytes | None = None,
-) -> VideoGenerationResponse:
+) -> VideoGenerationResponse | StreamingResponse:
     handler = Omnivideo(raw_request)
     if handler is None:
         raise HTTPException(
@@ -1584,7 +1591,10 @@ async def _run_video_generation(
         )
     logger.info("Video generation handler: %s", type(handler).__name__)
     try:
-        return await handler.generate_videos(request, raw_request, input_reference_bytes=input_reference_bytes)
+        response = await handler.generate_videos(request, raw_request, input_reference_bytes=input_reference_bytes)
+        if request.response_format != VideoResponseFormat.FILE:
+            return response
+        return response.stream_response()
     except HTTPException:
         raise
     except Exception as e:
@@ -1615,6 +1625,7 @@ def _parse_form_json(value: str | None) -> Any:
         HTTPStatus.SERVICE_UNAVAILABLE.value: {"model": ErrorResponse},
         HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
     },
+    response_model=None,
 )
 async def create_video(
     raw_request: Request,
@@ -1639,7 +1650,7 @@ async def create_video(
     seed: int | None = Form(default=None),
     negative_prompt: str | None = Form(default=None),
     lora: str | None = Form(default=None),
-) -> VideoGenerationResponse:
+) -> Union[VideoGenerationResponse,StreamingResponse]:
     """OpenAI-style video create endpoint (multipart form-data)."""
     input_reference_bytes = await input_reference.read() if input_reference is not None else None
 

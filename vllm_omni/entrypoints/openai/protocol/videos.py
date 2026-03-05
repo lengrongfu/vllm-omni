@@ -8,9 +8,14 @@ mirrors the OpenAI Images API shape, with vllm-omni extensions for diffusion
 video models (e.g., Wan2.2).
 """
 
+import base64
 from enum import Enum
+from http import HTTPStatus
+import io
 from typing import Any
 
+from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -19,6 +24,7 @@ class VideoResponseFormat(str, Enum):
 
     B64_JSON = "b64_json"
     URL = "url"  # Not implemented in PoC
+    FILE = "file"
 
 
 class VideoParams(BaseModel):
@@ -135,8 +141,8 @@ class VideoGenerationRequest(BaseModel):
     @field_validator("response_format")
     @classmethod
     def validate_response_format(cls, v):
-        if v is not None and v != VideoResponseFormat.B64_JSON:
-            raise ValueError(f"Only 'b64_json' response format is supported, got: {v}")
+        if v is not None and v != VideoResponseFormat.B64_JSON and v != VideoResponseFormat.FILE:
+            raise ValueError(f"Only 'b64_json or file' response format is supported, got: {v}")
         return v
 
     @field_validator("seconds")
@@ -166,3 +172,16 @@ class VideoGenerationResponse(BaseModel):
 
     created: int = Field(..., description="Unix timestamp of when the generation completed")
     data: list[VideoData] = Field(..., description="Array of generated videos")
+
+    def stream_response(self) -> StreamingResponse:
+        if not self.data or not self.data[0].b64_json:
+            raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                    detail="No video data available for file response.",
+                )
+        video_bytes = base64.b64decode(self.data[0].b64_json)
+        return StreamingResponse(
+                io.BytesIO(video_bytes),
+                media_type="video/mp4",
+                headers={"Content-Disposition": "attachment; filename=video.mp4","Content-Length": str(len(video_bytes)),},
+            )    
