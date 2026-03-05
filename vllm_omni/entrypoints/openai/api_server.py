@@ -16,7 +16,11 @@ from argparse import Namespace
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from http import HTTPStatus
+<<<<<<< HEAD
 from typing import Annotated, Any, Literal, Union, cast
+=======
+from typing import Annotated, Any, cast
+>>>>>>> df7ddc54 (format code)
 
 import httpx
 import vllm.envs as envs
@@ -1152,7 +1156,9 @@ async def show_available_models(raw_request: Request) -> JSONResponse:
         HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
     },
 )
-async def generate_images(request: ImageGenerationRequest, raw_request: Request) -> ImageGenerationResponse |StreamingResponse:
+async def generate_images(
+    request: ImageGenerationRequest, raw_request: Request
+) -> ImageGenerationResponse | StreamingResponse:
     """Generate images from text prompts using diffusion models.
 
     OpenAI DALL-E compatible endpoint for text-to-image generation.
@@ -2144,3 +2150,111 @@ async def stop_profile(raw_request: Request, request: ProfileRequest | None = No
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=f"Failed to stop profiler: {str(e)}"
         )
+<<<<<<< HEAD
+=======
+
+
+async def _run_video_generation(
+    request: VideoGenerationRequest,
+    raw_request: Request,
+    *,
+    input_reference_bytes: bytes | None = None,
+) -> VideoGenerationResponse | StreamingResponse:
+    handler = Omnivideo(raw_request)
+    if handler is None:
+        raise HTTPException(
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE.value,
+            detail="Video generation handler not initialized.",
+        )
+    logger.info("Video generation handler: %s", type(handler).__name__)
+    try:
+        response = await handler.generate_videos(request, raw_request, input_reference_bytes=input_reference_bytes)
+        if request.response_format != VideoResponseFormat.FILE:
+            return response
+        return response.stream_response()
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Video generation failed: %s", e)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail=f"Video generation failed: {str(e)}",
+        )
+
+
+def _parse_form_json(value: str | None) -> Any:
+    if value is None or value == "":
+        return None
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail="Invalid JSON in form field.",
+        ) from exc
+
+
+@router.post(
+    "/v1/videos",
+    responses={
+        HTTPStatus.OK.value: {"model": VideoGenerationResponse},
+        HTTPStatus.BAD_REQUEST.value: {"model": ErrorResponse},
+        HTTPStatus.SERVICE_UNAVAILABLE.value: {"model": ErrorResponse},
+        HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
+    },
+    response_model=None,
+)
+async def create_video(
+    raw_request: Request,
+    prompt: str = Form(...),
+    input_reference: UploadFile | None = File(default=None),
+    model: str | None = Form(default=None),
+    n: int | None = Form(default=None),
+    seconds: int | None = Form(default=None),
+    size: str | None = Form(default=None),
+    response_format: str | None = Form(default=None),
+    user: str | None = Form(default=None),
+    width: int | None = Form(default=None),
+    height: int | None = Form(default=None),
+    num_frames: int | None = Form(default=None),
+    fps: int | None = Form(default=None),
+    num_inference_steps: int | None = Form(default=None),
+    guidance_scale: float | None = Form(default=None),
+    guidance_scale_2: float | None = Form(default=None),
+    boundary_ratio: float | None = Form(default=None),
+    flow_shift: float | None = Form(default=None),
+    true_cfg_scale: float | None = Form(default=None),
+    seed: int | None = Form(default=None),
+    negative_prompt: str | None = Form(default=None),
+    lora: str | None = Form(default=None),
+) -> VideoGenerationResponse | StreamingResponse:
+    """OpenAI-style video create endpoint (multipart form-data)."""
+    input_reference_bytes = await input_reference.read() if input_reference is not None else None
+
+    request_data: dict[str, Any] = {
+        "prompt": prompt,
+        "model": model,
+        "seconds": seconds,
+        "size": size,
+        "user": user,
+        "response_format": response_format,
+        "input_reference": None,
+        "n": n,
+        "width": width,
+        "height": height,
+        "num_frames": num_frames,
+        "fps": fps,
+        "num_inference_steps": num_inference_steps,
+        "guidance_scale": guidance_scale,
+        "guidance_scale_2": guidance_scale_2,
+        "boundary_ratio": boundary_ratio,
+        "flow_shift": flow_shift,
+        "true_cfg_scale": true_cfg_scale,
+        "seed": seed,
+        "negative_prompt": negative_prompt,
+        "lora": _parse_form_json(lora),
+    }
+    request_data = {k: v for k, v in request_data.items() if v is not None}
+    request = VideoGenerationRequest(**request_data)
+    return await _run_video_generation(request, raw_request, input_reference_bytes=input_reference_bytes)
+>>>>>>> df7ddc54 (format code)
