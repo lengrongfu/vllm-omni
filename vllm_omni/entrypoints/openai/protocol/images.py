@@ -158,7 +158,7 @@ class ImageGenerationResponse(BaseModel):
         else:
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for idx, item in enumerate(response.data):
+                for idx, item in enumerate(self.data):
                     if item.b64_json:
                         zf.writestr(f"image_{idx}.png", base64.b64decode(item.b64_json))
             zip_bytes = zip_buffer.getvalue()
