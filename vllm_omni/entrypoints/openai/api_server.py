@@ -1400,13 +1400,24 @@ def _update_if_not_none(object: any, key: str, val: any) -> None:
 
 def _normalize_image(image: Any) -> Any:
     """Normalize a single image output to a PIL-compatible format."""
+    if not np.issubdtype(image.dtype, np.integer) and not np.issubdtype(image.dtype, np.floating):
+        raise ValueError(f"Unsupported dtype: {image.dtype}")
     if isinstance(image, np.ndarray):
         while image.ndim > 3:
             image = image[0]
-        if np.issubdtype(image.dtype, np.floating):
-            if image.min() < 0:
-                image = np.clip(image, -1.0, 1.0) * 0.5 + 0.5
-            image = (np.clip(image, 0.0, 1.0) * 255).astype(np.uint8)
+        if image.min() < 0:
+            if image.min() < -1.01 or image.max() > 1.01:
+                logger.warning(
+                    f"Image float range [{image.min():.2f}, {image.max():.2f}] outside expected [-1, 1]. "
+                    f"Clipping to [-1, 1] before normalization."
+                )
+            image = np.clip(image, -1.0, 1.0) * 0.5 + 0.5
+        elif image.max() > 1.01:
+            logger.warning(
+                f"Image float range [{image.min():.2f}, {image.max():.2f}] outside expected [0, 1]. "
+                f"Clipping to [0, 1] before normalization."
+            )
+        image = (np.clip(image, 0.0, 1.0) * 255).astype(np.uint8)
         image = Image.fromarray(image)
     return image
 
@@ -1421,7 +1432,9 @@ def _extract_images_from_result(result: Any) -> list[Any]:
             images = request_output["images"]
         elif hasattr(request_output, "images") and request_output.images:
             images = request_output.images
-    if isinstance(images[0], np.ndarray):
+    # Handle when generate more one image
+    if images and isinstance(images[0], np.ndarray) and len(images[0]) > 1:
+        # Unwrap batch: (N, H, W, C) -> [img1, img2, ...]
         images = images[0]
     return [_normalize_image(img) for img in images]
 
