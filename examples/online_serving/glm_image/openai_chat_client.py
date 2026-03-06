@@ -19,7 +19,7 @@ import requests
 
 def generate_image(
     prompt: str,
-    server_url: str = "http://localhost:8091",
+    server_url: str = "http://localhost:8000",
     image_path: str | None = None,
     height: int = 1024,
     width: int = 1024,
@@ -120,7 +120,7 @@ def main():
         help="Text prompt",
     )
     parser.add_argument("--output", "-o", default="glm_image_output.png", help="Output file")
-    parser.add_argument("--server", "-s", default="http://localhost:8091", help="Server URL")
+    parser.add_argument("--server", "-s", default="http://localhost:8000", help="Server URL")
 
     # Image-to-image
     parser.add_argument(

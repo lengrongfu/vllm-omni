@@ -162,7 +162,7 @@ You can enable Ulysses-SP in online serving for diffusion models via `--usp`:
 
 ```bash
 # Text-to-image (requires >= 2 GPUs)
-vllm serve Qwen/Qwen-Image --omni --port 8091 --usp 2
+vllm serve Qwen/Qwen-Image --omni --port 8000 --usp 2
 ```
 
 ##### Benchmarks
@@ -217,7 +217,7 @@ You can enable Ring-Attention in online serving for diffusion models via `--ring
 
 ```bash
 # Text-to-image (requires >= 2 GPUs)
-vllm serve Qwen/Qwen-Image --omni --port 8091 --ring 2
+vllm serve Qwen/Qwen-Image --omni --port 8000 --ring 2
 ```
 
 ##### Benchmarks
@@ -266,7 +266,7 @@ outputs = omni.generate(
 
 ```bash
 # Text-to-image (requires >= 4 GPUs)
-vllm serve Qwen/Qwen-Image --omni --port 8091 --usp 2 --ring 2
+vllm serve Qwen/Qwen-Image --omni --port 8000 --usp 2 --ring 2
 ```
 
 ##### Benchmarks
@@ -341,7 +341,7 @@ python image_edit.py \
 You can enable CFG-Parallel in online serving for diffusion models via `--cfg-parallel-size`:
 
 ```bash
-vllm serve Qwen/Qwen-Image-Edit --omni --port 8091 --cfg-parallel-size 2
+vllm serve Qwen/Qwen-Image-Edit --omni --port 8000 --cfg-parallel-size 2
 ```
 
 ### HSDP
@@ -412,13 +412,13 @@ omni = Omni(
 **Standalone HSDP** (shard model across 4 GPUs):
 
 ```bash
-vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8091 --use-hsdp --hsdp-shard-size 4
+vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8000 --use-hsdp --hsdp-shard-size 4
 ```
 
 **Combined with Sequence Parallel**:
 
 ```bash
-vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8091 --use-hsdp --usp 4
+vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8000 --use-hsdp --usp 4
 ```
 
 #### Adding HSDP Support to New Models

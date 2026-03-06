@@ -17,7 +17,7 @@ Each server instance runs a single model (specified at startup via `vllm serve <
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 
@@ -44,7 +44,7 @@ vllm serve mistralai/Voxtral-4B-TTS-2603 \
 **Using curl:**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -59,7 +59,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "vivian",
@@ -77,7 +77,7 @@ with open("output.wav", "wb") as f:
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8091/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="none")
 
 response = client.audio.speech.create(
     model="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
@@ -263,7 +263,7 @@ curl -X DELETE http://localhost:8091/v1/audio/voices/custom_voice_1
 ### CustomVoice with Style Instruction
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "I am so excited!",
@@ -279,13 +279,13 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello world",
@@ -301,13 +301,13 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-Base \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, this is a cloned voice",
@@ -407,7 +407,7 @@ Ensure you're using the correct model variant for your task type:
 
 ```bash
 # Check if server is responding
-curl http://localhost:8091/v1/audio/voices
+curl http://localhost:8000/v1/audio/voices
 ```
 
 ### Out of Memory
@@ -428,7 +428,7 @@ Enable debug logging:
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager \
     --uvicorn-log-level debug

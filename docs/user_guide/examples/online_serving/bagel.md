@@ -15,7 +15,7 @@ Please refer to [README.md](https://github.com/vllm-project/vllm-omni/tree/main/
 
 ```bash
 # Use default configuration
-vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8091
+vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8000
 ```
 
 Or use the convenience script:
@@ -26,7 +26,7 @@ bash run_server.sh
 ```
 
 ```bash
-vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8091 --stage-configs-path /path/to/stage_configs_file
+vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8000 --stage-configs-path /path/to/stage_configs_file
 ```
 
 #### 🚀 Tensor Parallelism (TP)
@@ -45,7 +45,7 @@ For larger models or multi-GPU environments, you can enable Tensor Parallelism (
 
 2. **Launch Server**:
 ```bash
-vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8091 --stage-configs-path /path/to/your/custom_bagel.yaml
+vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8000 --stage-configs-path /path/to/your/custom_bagel.yaml
 ```
 
 #### Using Mooncake Connector
@@ -82,7 +82,7 @@ mooncake_master \
 **3. Launch the server** with the Mooncake stage config:
 
 ```bash
-vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8091 \
+vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni --port 8000 \
     --stage-configs-path vllm_omni/model_executor/stage_configs/bagel_multiconnector.yaml
 ```
 
@@ -120,7 +120,7 @@ vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni \
     --stage-configs-path vllm_omni/model_executor/stage_configs/bagel_multiconnector.yaml \
     --stage-id 0 \
     -oma <ORCHESTRATOR_IP> \
-    -omp 8091
+    -omp 8000
 ```
 
 **3. Launch Stage 1 (DiT)** on the remote node in headless mode:
@@ -131,7 +131,7 @@ vllm serve ByteDance-Seed/BAGEL-7B-MoT --omni \
     --stage-id 1 \
     --headless \
     -oma <ORCHESTRATOR_IP> \
-    -omp 8091
+    -omp 8000
 ```
 
 **Mooncake Master arguments:**
@@ -165,7 +165,7 @@ All nodes must have network connectivity to each other. Ensure the following por
 | :--- | :------- | :------ | :-------- |
 | 50051 | TCP | Mooncake Master RPC | Worker → Orchestrator |
 | 8080 | TCP | Mooncake HTTP Metadata Server | Worker → Orchestrator |
-| 8091 | TCP | Orchestrator Master (`-omp`) | Worker → Orchestrator |
+| 8000 | TCP | Orchestrator Master (`-omp`) | Worker → Orchestrator |
 | 8000 | TCP | API Server (`--port`) | Client → Orchestrator |
 | 9003 | TCP | Metrics (optional) | Monitoring → Orchestrator |
 
@@ -189,7 +189,7 @@ The Python client supports the following command-line arguments:
 
 - `--prompt` (or `-p`): Text prompt for generation (default: `A cute cat`)
 - `--output` (or `-o`): Output file path for image results (default: `bagel_output.png`)
-- `--server` (or `-s`): Server URL (default: `http://localhost:8091`)
+- `--server` (or `-s`): Server URL (default: `http://localhost:8000`)
 - `--image-url` (or `-i`): Input image URL or local file path (for img2img/img2text modes)
 - `--modality` (or `-m`): Task modality (default: `text2img`). Options: `text2img`, `img2img`, `img2text`, `text2text`
 - `--height`: Image height in pixels (default: 512)
@@ -241,7 +241,7 @@ python openai_chat_client.py \
 **Using curl**
 
 ```bash
-curl http://localhost:8091/v1/chat/completions \
+curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{"role": "user", "content": [{"type": "text", "text": "<|im_start|>A beautiful sunset over mountains<|im_end|>"}]}],
@@ -290,7 +290,7 @@ cat <<EOF > payload.json
 }
 EOF
 
-curl http://localhost:8091/v1/chat/completions \
+curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d @payload.json
 
@@ -327,7 +327,7 @@ cat <<EOF > payload.json
 }
 EOF
 
-curl http://localhost:8091/v1/chat/completions \
+curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d @payload.json
 ```
@@ -347,7 +347,7 @@ python openai_chat_client.py \
 **Using curl**
 
 ```bash
-curl http://localhost:8091/v1/chat/completions \
+curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{"role": "user", "content": [{"type": "text", "text": "<|im_start|>user\nWhat is the capital of France?<|im_end|>\n<|im_start|>assistant\n"}]}]

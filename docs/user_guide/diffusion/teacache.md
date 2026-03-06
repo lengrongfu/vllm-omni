@@ -50,7 +50,7 @@ omni = Omni(
 Enable TeaCache for online serving by passing `--cache-backend tea_cache` when starting the server:
 
 ```bash
-vllm serve Qwen/Qwen-Image --omni --port 8091 \
+vllm serve Qwen/Qwen-Image --omni --port 8000 \
   --cache-backend tea_cache \
   --cache-config '{"rel_l1_thresh": 0.2}'
 ```

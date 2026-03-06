@@ -32,7 +32,7 @@ if current_omni_platform.is_xpu():
 example_dir = str(Path(__file__).parent.parent.parent.parent / "examples" / "online_serving" / "qwen2_5_omni")
 # Create parameter combinations for model and stage config
 test_params = [
-    OmniServerParams(model=model, port=8091, stage_config_path=stage_config)
+    OmniServerParams(model=model, port=8000, stage_config_path=stage_config)
     for model in models
     for stage_config in stage_configs
 ]

@@ -7,7 +7,7 @@ This example demonstrates how to deploy Qwen-Image model for online image genera
 ### Basic Start
 
 ```bash
-vllm serve Qwen/Qwen-Image --omni --port 8091
+vllm serve Qwen/Qwen-Image --omni --port 8000
 ```
 !!! note
     If you encounter Out-of-Memory (OOM) issues or have limited GPU memory, you can enable VAE slicing and tiling to reduce memory usage, --vae-use-slicing --vae-use-tiling
@@ -29,7 +29,7 @@ bash run_server.sh
 bash run_curl_text_to_image.sh
 
 # Or execute directly
-curl -s http://localhost:8091/v1/chat/completions \
+curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [
@@ -78,7 +78,7 @@ python openai_chat_client.py \
 The `/v1/images/generations` endpoint supports a `lora` field in the request body:
 
 ```bash
-curl -X POST http://localhost:8091/v1/images/generations \
+curl -X POST http://localhost:8000/v1/images/generations \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "A piece of cheesecake",

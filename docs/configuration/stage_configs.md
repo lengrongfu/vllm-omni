@@ -23,7 +23,7 @@ omni = Omni(model=model_name, stage_configs_path="/path/to/custom_stage_configs.
 
 For online serving:
 ```bash
-vllm serve Qwen/Qwen2.5-Omni-7B --omni --port 8091 --stage-configs-path /path/to/stage_configs_file
+vllm serve Qwen/Qwen2.5-Omni-7B --omni --port 8000 --stage-configs-path /path/to/stage_configs_file
 ```
 !!! important
     We are actively iterating on the definition of stage configs, and we welcome all feedbacks from both community users and developers to help us shape the development!
