@@ -561,6 +561,38 @@ def test_model_field_omitted_works(test_client):
     assert response.status_code == 200
 
 
+def test_image_file_response_format_multiple(test_client):
+    """Test response_format=file with n>1 returns ZIP archive"""
+    response = test_client.post(
+        "/v1/images/generations",
+        json={
+            "prompt": "a dog",
+            "n": 3,
+            "response_format": "file",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/zip"
+    assert "attachment" in response.headers.get("content-disposition", "")
+    assert ".zip" in response.headers.get("content-disposition", "")
+
+    # Verify it's a valid ZIP with 3 PNG files
+    import zipfile
+
+    zip_buffer = io.BytesIO(response.content)
+    with zipfile.ZipFile(zip_buffer, "r") as zf:
+        files = zf.namelist()
+        assert len(files) == 3
+        assert all(f.endswith(".png") for f in files)
+
+        # Verify each file is a valid PNG
+        for filename in files:
+            img_bytes = zf.read(filename)
+            img = Image.open(io.BytesIO(img_bytes))
+            assert img.format == "PNG"
+
+
 def make_test_image_bytes(size=(64, 64)) -> bytes:
     img = Image.new(
         "RGB",

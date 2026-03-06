@@ -317,3 +317,45 @@ def test_video_request_validation():
 
     with pytest.raises(ValueError):
         VideoGenerationRequest(prompt="test", n=0)
+
+
+def test_video_file_response_format(test_client, mocker: MockerFixture):
+    """Test response_format=file returns raw MP4 binary"""
+    import numpy as np
+
+    # Mock video generation to return a fake video array
+    fake_video = np.random.randint(0, 255, (16, 64, 64, 3), dtype=np.uint8)
+
+    class MockVideoFileResult:
+        def __init__(self):
+            self.multimodal_output = {"video": [fake_video]}
+
+    async def fake_generate(*args, **kwargs):
+        yield MockVideoFileResult()
+
+    mocker.patch.object(
+        test_client.app.state.openai_serving_video._engine_client,
+        "generate",
+        side_effect=fake_generate,
+    )
+
+    # Mock encode to return fake MP4 bytes
+    fake_mp4_bytes = b"fake_mp4_data_here"
+    mocker.patch(
+        "vllm_omni.entrypoints.openai.serving_video.encode_video_base64",
+        return_value="ZmFrZV9tcDRfZGF0YV9oZXJl",  # base64 of fake_mp4_bytes
+    )
+
+    response = test_client.post(
+        "/v1/videos",
+        data={
+            "prompt": "A cat running",
+            "response_format": "file",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "video/mp4"
+    assert "attachment" in response.headers.get("content-disposition", "")
+    assert "video.mp4" in response.headers.get("content-disposition", "")
+    assert response.content == fake_mp4_bytes
