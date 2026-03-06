@@ -2,7 +2,7 @@
 # GLM-Image online serving startup script
 
 MODEL="${MODEL:-zai-org/GLM-Image}"
-PORT="${PORT:-8091}"
+PORT="${PORT:-8000}"
 
 echo "Starting GLM-Image server..."
 echo "Model: $MODEL"

@@ -14,7 +14,7 @@ Please refer to [README.md](../../../README.md)
 
 ```bash
 # Use default configuration
-vllm serve zai-org/GLM-Image --omni --port 8091
+vllm serve zai-org/GLM-Image --omni --port 8000
 ```
 
 Or use the convenience script:
@@ -27,7 +27,7 @@ bash run_server.sh
 If you have a custom stage configs file:
 
 ```bash
-vllm serve zai-org/GLM-Image --omni --port 8091 --stage-configs-path /path/to/glm_image.yaml
+vllm serve zai-org/GLM-Image --omni --port 8000 --stage-configs-path /path/to/glm_image.yaml
 ```
 
 ### Send Requests
@@ -48,7 +48,7 @@ The Python client supports the following command-line arguments:
 
 - `--prompt` (or `-p`): Text prompt for generation (default: `A beautiful sunset over the ocean with sailing boats`)
 - `--output` (or `-o`): Output file path (default: `glm_image_output.png`)
-- `--server` (or `-s`): Server URL (default: `http://localhost:8091`)
+- `--server` (or `-s`): Server URL (default: `http://localhost:8000`)
 - `--image` (or `-i`): Input image path (for image-to-image editing)
 - `--height`: Image height in pixels (default: 1024)
 - `--width`: Image width in pixels (default: 1024)
@@ -85,7 +85,7 @@ python openai_chat_client.py \
 **Using curl**
 
 ```bash
-curl -s http://localhost:8091/v1/chat/completions \
+curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [
@@ -125,7 +125,7 @@ python openai_chat_client.py \
 ```bash
 IMG_B64=$(base64 < input.png | tr -d '\n')
 
-curl -s http://localhost:8091/v1/chat/completions \
+curl -s http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d @- <<EOF | jq -r '.choices[0].message.content[0].image_url.url' | cut -d',' -f2- | base64 -d > output.png
 {

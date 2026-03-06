@@ -7,7 +7,7 @@ This example demonstrates how to deploy the Wan2.2 image-to-video model for onli
 ### Basic Start
 
 ```bash
-vllm serve Wan-AI/Wan2.2-I2V-A14B-Diffusers --omni --port 8091
+vllm serve Wan-AI/Wan2.2-I2V-A14B-Diffusers --omni --port 8000
 ```
 
 ### Start with Parameters
@@ -20,7 +20,7 @@ bash run_server.sh
 
 The script allows overriding:
 - `MODEL` (default: `Wan-AI/Wan2.2-I2V-A14B-Diffusers`)
-- `PORT` (default: `8091`)
+- `PORT` (default: `8000`)
 - `BOUNDARY_RATIO` (default: `0.875`)
 - `FLOW_SHIFT` (default: `12.0`)
 - `CACHE_BACKEND` (default: `none`)
@@ -35,7 +35,7 @@ The script allows overriding:
 bash run_curl_image_to_video.sh
 
 # Or execute directly (OpenAI-style multipart)
-curl -X POST http://localhost:8091/v1/videos \
+curl -X POST http://localhost:8000/v1/videos \
   -H "Accept: application/json" \
   -F "prompt=A bear playing with yarn, smooth motion" \
   -F "negative_prompt=low quality, blurry, static" \
@@ -57,7 +57,7 @@ curl -X POST http://localhost:8091/v1/videos \
 ### Required Fields
 
 ```bash
-curl -X POST http://localhost:8091/v1/videos \
+curl -X POST http://localhost:8000/v1/videos \
   -F "prompt=A bear playing with yarn, smooth motion" \
   -F "negative_prompt=low quality, blurry, static" \
   -F "input_reference=@/path/to/qwen-bear.png"
@@ -66,7 +66,7 @@ curl -X POST http://localhost:8091/v1/videos \
 ### Generation with Parameters
 
 ```bash
-curl -X POST http://localhost:8091/v1/videos \
+curl -X POST http://localhost:8000/v1/videos \
   -F "prompt=A bear playing with yarn, smooth motion" \
   -F "negative_prompt=low quality, blurry, static" \
   -F "input_reference=@/path/to/qwen-bear.png" \

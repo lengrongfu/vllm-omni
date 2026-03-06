@@ -10,7 +10,7 @@ This example demonstrates how to deploy the Wan2.2 text-to-video model for onlin
 ### Basic Start
 
 ```bash
-vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8091
+vllm serve Wan-AI/Wan2.2-T2V-A14B-Diffusers --omni --port 8000
 ```
 
 ### Start with Parameters
@@ -23,7 +23,7 @@ bash run_server.sh
 
 The script allows overriding:
 - `MODEL` (default: `Wan-AI/Wan2.2-T2V-A14B-Diffusers`)
-- `PORT` (default: `8091`)
+- `PORT` (default: `8000`)
 - `BOUNDARY_RATIO` (default: `0.875`)
 - `FLOW_SHIFT` (default: `5.0`)
 - `CACHE_BACKEND` (default: `none`)
@@ -38,7 +38,7 @@ The script allows overriding:
 bash run_curl_text_to_video.sh
 
 # Or execute directly (OpenAI-style multipart)
-curl -s http://localhost:8091/v1/videos \
+curl -s http://localhost:8000/v1/videos \
   -H "Accept: application/json" \
   -F "prompt=Two anthropomorphic cats in comfy boxing gear and bright gloves fight intensely on a spotlighted stage." \
   -F "width=832" \
@@ -58,14 +58,14 @@ curl -s http://localhost:8091/v1/videos \
 ### Simple Text-to-Video Generation
 
 ```bash
-curl -X POST http://localhost:8091/v1/videos \
+curl -X POST http://localhost:8000/v1/videos \
   -F "prompt=A cinematic view of a futuristic city at sunset"
 ```
 
 ### Generation with Parameters
 
 ```bash
-curl -X POST http://localhost:8091/v1/videos \
+curl -X POST http://localhost:8000/v1/videos \
   -F "prompt=A cinematic view of a futuristic city at sunset" \
   -F "width=832" \
   -F "height=480" \

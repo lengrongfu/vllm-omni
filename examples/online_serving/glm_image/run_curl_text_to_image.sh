@@ -4,7 +4,7 @@
 set -euo pipefail
 
 PROMPT="${1:-A beautiful sunset over the ocean with sailing boats}"
-SERVER="${SERVER:-http://localhost:8091}"
+SERVER="${SERVER:-http://localhost:8000}"
 OUTPUT="${OUTPUT:-glm_image_t2i_output.png}"
 
 echo "Generating image..."

@@ -26,7 +26,7 @@ Please refer to [README.md](https://github.com/vllm-project/vllm-omni/tree/main/
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 
@@ -34,7 +34,7 @@ vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 
@@ -42,7 +42,7 @@ vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-Base \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
@@ -52,7 +52,7 @@ If you have custom stage configs file, launch the server with command below
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --stage-configs-path /path/to/stage_configs_file \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
@@ -105,7 +105,7 @@ python openai_speech_client.py \
 
 The Python client supports the following command-line arguments:
 
-- `--api-base`: API base URL (default: `http://localhost:8091`)
+- `--api-base`: API base URL (default: `http://localhost:8000`)
 - `--model` (or `-m`): Model name/path (default: `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice`)
 - `--task-type` (or `-t`): TTS task type. Options: `CustomVoice`, `VoiceDesign`, `Base`
 - `--text`: Text to synthesize (required)
@@ -121,7 +121,7 @@ The Python client supports the following command-line arguments:
 
 ```bash
 # Simple TTS request
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -130,7 +130,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
     }' --output output.wav
 
 # With style instruction
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "I am so excited!",
@@ -139,7 +139,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
     }' --output excited.wav
 
 # List available voices in CustomVoice models
-curl http://localhost:8091/v1/audio/voices
+curl http://localhost:8000/v1/audio/voices
 ```
 
 ### Using OpenAI SDK
@@ -147,7 +147,7 @@ curl http://localhost:8091/v1/audio/voices
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8091/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="none")
 
 response = client.audio.speech.create(
     model="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
@@ -164,7 +164,7 @@ response.stream_to_file("output.wav")
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "vivian",
@@ -271,7 +271,7 @@ Set `stream=true` with `response_format="pcm"` to receive raw PCM audio chunks a
 (one chunk per Code2Wav window, default 25 frames; configurable in the stage config):
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",

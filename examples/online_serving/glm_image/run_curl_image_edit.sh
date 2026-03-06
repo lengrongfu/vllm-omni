@@ -10,7 +10,7 @@ fi
 
 INPUT_IMG=$1
 PROMPT=$2
-SERVER="${SERVER:-http://localhost:8091}"
+SERVER="${SERVER:-http://localhost:8000}"
 CURRENT_TIME=$(date +%Y%m%d%H%M%S)
 OUTPUT="${3:-glm_image_i2i_${CURRENT_TIME}.png}"
 
