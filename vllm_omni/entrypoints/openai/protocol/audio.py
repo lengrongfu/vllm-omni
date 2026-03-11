@@ -71,9 +71,9 @@ class OpenAICreateSpeechRequest(BaseModel):
     @model_validator(mode="after")
     def validate_streaming_constraints(self) -> "OpenAICreateSpeechRequest":
         if self.stream:
-            if self.response_format != "pcm":
+            if self.response_format != "pcm" and self.response_format != "wav":
                 raise ValueError(
-                    "Streaming (stream=true) requires response_format='pcm'. "
+                    "Streaming (stream=true) requires response_format='pcm' or response_format='wav'. "
                     f"Got response_format='{self.response_format}'."
                 )
             if self.speed is None:
