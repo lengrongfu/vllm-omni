@@ -922,15 +922,18 @@ class TestStreamingProtocolValidation:
     """Unit tests for the stream field validators in OpenAICreateSpeechRequest."""
 
     def test_stream_validation_errors(self):
-        """stream=True requires response_format='pcm' and speed=1.0."""
-        with pytest.raises(ValidationError, match="response_format='pcm'"):
-            OpenAICreateSpeechRequest(input="Hello", stream=True, response_format="wav")
+        """stream=True requires response_format not in ('pcm', 'wav') and speed=1.0."""
+        with pytest.raises(ValidationError, match="requires response_format not in \\('pcm', 'wav'\\)"):
+            OpenAICreateSpeechRequest(input="Hello", stream=True, response_format="mp3")
         with pytest.raises(ValidationError, match="Speed adjustment is not supported"):
             OpenAICreateSpeechRequest(input="Hello", stream=True, response_format="pcm", speed=2.0)
 
     def test_stream_valid(self):
-        """stream=True + response_format='pcm' + speed=1.0 is accepted."""
+        """stream=True + response_format in ('pcm', 'wav') + speed=1.0 is accepted."""
         req = OpenAICreateSpeechRequest(input="Hello", stream=True, response_format="pcm")
+        assert req.stream is True
+
+        req = OpenAICreateSpeechRequest(input="Hello", stream=True, response_format="wav")
         assert req.stream is True
 
     def test_sse_stream_format_is_blocked(self):

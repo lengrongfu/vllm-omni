@@ -69,6 +69,7 @@ def _create_wav_header(sample_rate: int, num_channels: int = 1, bits_per_sample:
     # Use 0xFFFFFFFF as placeholder for unknown size (streaming)
     placeholder_size = 0xFFFFFFFF
 
+    # ref https://docs.fileformat.com/audio/wav/
     header = struct.pack(
         "<4sI4s4sIHHIIHH4sI",
         b"RIFF",  # ChunkID
