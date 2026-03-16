@@ -895,9 +895,9 @@ class HeliosPipeline(nn.Module, CFGParallelMixin, ProgressBarMixin):
         cov += torch.eye(block_size) * 1e-8
         cov = cov.float()  # Upcast to fp32 for numerical stability — cholesky is unreliable in fp16/bf16.
 
-        L = torch.linalg.cholesky(cov)
+        L = torch.linalg.cholesky(cov).to(generator.device)
         block_number = batch_size * channel * num_frames * (height // ph) * (width // pw)
-        z = torch.randn(block_number, block_size, generator=generator)
+        z = torch.randn(block_number, block_size, generator=generator,device=generator.device)
         noise = z @ L.T
 
         noise = noise.view(batch_size, channel, num_frames, height // ph, width // pw, ph, pw)
