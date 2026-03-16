@@ -890,8 +890,8 @@ class HeliosPipeline(nn.Module, CFGParallelMixin, ProgressBarMixin):
         gamma = self.scheduler.config.gamma
         _, ph, pw = patch_size
         block_size = ph * pw
-        
-        device = generator.device if generator is not None else 'cpu'
+
+        device = generator.device if generator is not None else "cpu"
 
         cov = torch.eye(block_size) * (1 + gamma) - torch.ones(block_size, block_size) * gamma
         cov += torch.eye(block_size) * 1e-8
@@ -899,7 +899,7 @@ class HeliosPipeline(nn.Module, CFGParallelMixin, ProgressBarMixin):
 
         L = torch.linalg.cholesky(cov).to(device)
         block_number = batch_size * channel * num_frames * (height // ph) * (width // pw)
-        z = torch.randn(block_number, block_size, generator=generator,device=device)
+        z = torch.randn(block_number, block_size, generator=generator, device=device)
         noise = z @ L.T
 
         noise = noise.view(batch_size, channel, num_frames, height // ph, width // pw, ph, pw)
