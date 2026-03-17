@@ -1838,6 +1838,7 @@ async def create_video(
     seed: int | None = Form(default=None),
     negative_prompt: str | None = Form(default=None),
     lora: str | None = Form(default=None),
+    extra_params: str | None = Form(default=None),
 ) -> VideoResponse:
     """Create an asynchronous video generation job.
 
@@ -1868,6 +1869,7 @@ async def create_video(
         seed: Optional random seed override.
         negative_prompt: Optional negative prompt.
         lora: Optional JSON-encoded per-request LoRA configuration.
+        extra_params: Optional model-specific parameters passed directly to the model's extra_args.
 
     Returns:
         A queued ``VideoResponse`` that includes the generated job identifier
@@ -1905,6 +1907,7 @@ async def create_video(
         "seed": seed,
         "negative_prompt": negative_prompt,
         "lora": _parse_form_json(lora),
+        "extra_params": _parse_form_json(extra_params),
     }
 
     request_data = {k: v for k, v in request_data.items() if v is not None}
