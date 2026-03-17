@@ -34,6 +34,15 @@ from vllm.entrypoints.logger import RequestLogger
 from vllm.entrypoints.mcp.tool_server import DemoToolServer, MCPToolServer, ToolServer
 from vllm.entrypoints.openai.api_server import build_app as build_openai_app
 from vllm.entrypoints.openai.api_server import setup_server as setup_openai_server
+
+from vllm_omni.utils.version_check import check_vllm_compatibility
+
+# vLLM moved `base` from openai.basic.api_router to serve.instrumentator.basic.
+# Keep a fallback for older/newer upstream layouts during rebase windows.
+try:
+    from vllm.entrypoints.serve.instrumentator.basic import base
+except ModuleNotFoundError:
+    from vllm.entrypoints.openai.basic.api_router import base
 from vllm.entrypoints.openai.chat_completion.protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -376,6 +385,8 @@ async def build_async_omni(
     Yields:
         EngineClient instance (AsyncOmni) ready for use
     """
+    # Check vLLM version compatibility before initializing the engine
+    check_vllm_compatibility(action="error")
     if os.getenv("VLLM_WORKER_MULTIPROC_METHOD") == "forkserver":
         # The executor is expected to be mp.
         # Pre-import heavy modules in the forkserver process

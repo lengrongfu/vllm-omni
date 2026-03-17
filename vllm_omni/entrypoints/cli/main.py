@@ -5,6 +5,8 @@ CLI entry point for vLLM-Omni that intercepts vLLM commands.
 import importlib.metadata
 import sys
 
+from vllm_omni.utils.version_check import check_vllm_compatibility
+
 
 def main():
     """Main CLI entry point that intercepts vLLM commands."""
@@ -12,6 +14,8 @@ def main():
     if "--omni" not in sys.argv:
         from vllm.entrypoints.cli.main import main as vllm_main
 
+        # Check vLLM version compatibility before proceeding
+        check_vllm_compatibility(action="error")
         vllm_main()
         return
     else:
