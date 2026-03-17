@@ -14,8 +14,6 @@ def main():
     if "--omni" not in sys.argv:
         from vllm.entrypoints.cli.main import main as vllm_main
 
-        # Check vLLM version compatibility before proceeding
-        check_vllm_compatibility(action="error")
         vllm_main()
         return
     else:
@@ -24,6 +22,9 @@ def main():
 
         import vllm_omni.entrypoints.cli.benchmark.main
         import vllm_omni.entrypoints.cli.serve
+
+        # Check vLLM version compatibility before proceeding
+        check_vllm_compatibility(action="error")
 
         CMD_MODULES = [
             vllm_omni.entrypoints.cli.serve,
