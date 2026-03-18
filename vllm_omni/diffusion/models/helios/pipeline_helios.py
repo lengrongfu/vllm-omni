@@ -891,7 +891,7 @@ class HeliosPipeline(nn.Module, CFGParallelMixin, ProgressBarMixin):
         _, ph, pw = patch_size
         block_size = ph * pw
 
-        device = generator.device if generator is not None else "cpu"
+        device = generator.device if generator is not None else self.device
 
         cov = torch.eye(block_size) * (1 + gamma) - torch.ones(block_size, block_size) * gamma
         cov += torch.eye(block_size) * 1e-8
