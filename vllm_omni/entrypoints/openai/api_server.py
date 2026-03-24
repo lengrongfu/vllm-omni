@@ -1674,6 +1674,10 @@ def _update_if_not_none(object: Any, key: str, val: Any) -> None:
 
 def _normalize_image(image: Any) -> Any:
     """Normalize a single image output to a PIL-compatible format."""
+    if isinstance(image, Image.Image):
+        return image
+    if not isinstance(image, np.ndarray):
+        raise ValueError(f"Unsupported image type: {type(image)}")
     if not np.issubdtype(image.dtype, np.integer) and not np.issubdtype(image.dtype, np.floating):
         raise ValueError(f"Unsupported dtype: {image.dtype}")
     if isinstance(image, np.ndarray):
