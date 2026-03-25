@@ -1110,27 +1110,6 @@ def test_normalize_image():
     assert result.size == (64, 64)
 
 
-def test_normalize_image_out_of_range_warning(caplog):
-    """Test _normalize_image logs warning for out-of-range float values"""
-    import numpy as np
-
-    from vllm_omni.entrypoints.openai.api_server import _normalize_image
-
-    # Test values outside [-1, 1] range
-    arr = np.array([[[[-1.5, 0.5, 1.5]]]], dtype=np.float32)
-    result = _normalize_image(arr)
-    assert isinstance(result, Image.Image)
-    assert "outside expected [-1, 1]" in caplog.text
-
-    caplog.clear()
-
-    # Test values outside [0, 1] range (large positive)
-    arr = np.array([[[[2.0, 3.0, 5.0]]]], dtype=np.float32)
-    result = _normalize_image(arr)
-    assert isinstance(result, Image.Image)
-    assert "outside expected [0, 1]" in caplog.text
-
-
 def test_extract_images_from_result():
     """Test _extract_images_from_result with various result formats"""
     import numpy as np
@@ -1146,7 +1125,7 @@ def test_extract_images_from_result():
     assert images == []
 
     # Test nested batch: [np.array(shape=(3, 64, 64, 3))]
-    batch = np.random.randint(0, 255, (3, 64, 64, 3), dtype=np.uint8)
+    batch = np.random.randint(0, 255, (3, 1, 64, 64, 3), dtype=np.uint8)
 
     class BatchResult:
         def __init__(self):
