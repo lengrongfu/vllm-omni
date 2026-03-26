@@ -91,7 +91,9 @@ class TestCheckVllmCompatibility:
     @patch("vllm_omni.version.__version__", "0.15.0+cuda")
     @patch("vllm_omni.utils.version_check.logger")
     @patch("vllm_omni.utils.version_check.sys.exit")
-    def test_incompatible_versions_error_action(self, mock_exit: MagicMock, mock_logger: MagicMock, mock_version: MagicMock) -> None:
+    def test_incompatible_versions_error_action(
+        self, mock_exit: MagicMock, mock_logger: MagicMock, mock_version: MagicMock
+    ) -> None:
         """Test that incompatible versions with error action exit."""
         # Mock vLLM version
         mock_version.return_value = "0.14.0"
