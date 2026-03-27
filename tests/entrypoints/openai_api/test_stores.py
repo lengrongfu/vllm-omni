@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 import pytest
 from pytest_mock import MockerFixture
+
 pytestmark = [pytest.mark.core_model, pytest.mark.cpu]
 
 
@@ -22,9 +23,8 @@ def _make_video(video_id: str = "video_gen_abc123", model: str = "test-model"):
 # ---------------------------------------------------------------------------
 
 
-
 @pytest.mark.asyncio
-async def test_upsert_and_get(tmp_path,mocker: MockerFixture) -> None:
+async def test_upsert_and_get(tmp_path, mocker: MockerFixture) -> None:
     store = _make_store(tmp_path)
     video = _make_video()
 
@@ -37,19 +37,15 @@ async def test_upsert_and_get(tmp_path,mocker: MockerFixture) -> None:
     assert result.prompt == video.prompt
 
 
-
-
 @pytest.mark.asyncio
-async def test_get_missing_key_returns_none(tmp_path,mocker: MockerFixture) -> None:
+async def test_get_missing_key_returns_none(tmp_path, mocker: MockerFixture) -> None:
     store = _make_store(tmp_path)
     result = await store.get("nonexistent")
     assert result is None
 
 
-
-
 @pytest.mark.asyncio
-async def test_pop_removes_and_returns(tmp_path,mocker: MockerFixture):
+async def test_pop_removes_and_returns(tmp_path, mocker: MockerFixture):
     store = _make_store(tmp_path)
     video = _make_video()
 
@@ -62,14 +58,10 @@ async def test_pop_removes_and_returns(tmp_path,mocker: MockerFixture):
     assert await store.get(video.id) is None
 
 
-
-
 @pytest.mark.asyncio
 async def test_pop_missing_key_returns_none(tmp_path):
     store = _make_store(tmp_path)
     assert await store.pop("nonexistent") is None
-
-
 
 
 @pytest.mark.asyncio
@@ -91,15 +83,11 @@ async def test_update_fields(tmp_path):
     assert fetched.progress == 50
 
 
-
-
 @pytest.mark.asyncio
 async def test_update_fields_missing_key_returns_none(tmp_path):
     store = _make_store(tmp_path)
     result = await store.update_fields("nonexistent", {"progress": 10})
     assert result is None
-
-
 
 
 @pytest.mark.asyncio
@@ -116,8 +104,6 @@ async def test_list_values(tmp_path):
     assert ids == {"id_1", "id_2"}
 
 
-
-
 @pytest.mark.asyncio
 async def test_upsert_overwrites(tmp_path):
     store = _make_store(tmp_path)
@@ -129,8 +115,6 @@ async def test_upsert_overwrites(tmp_path):
 
     result = await store.get(video.id)
     assert result.prompt == "a dog running"
-
-
 
 
 @pytest.mark.asyncio
