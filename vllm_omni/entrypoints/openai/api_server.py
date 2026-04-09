@@ -112,7 +112,7 @@ from vllm_omni.entrypoints.openai.serving_speech import OmniOpenAIServingSpeech
 from vllm_omni.entrypoints.openai.serving_speech_stream import OmniStreamingSpeechHandler
 from vllm_omni.entrypoints.openai.serving_video import OmniOpenAIServingVideo, ReferenceImage
 from vllm_omni.entrypoints.openai.storage import STORAGE_MANAGER
-from vllm_omni.entrypoints.openai.stores import VIDEO_STORE, VIDEO_TASKS
+from vllm_omni.entrypoints.openai.stores import VIDEO_STORE, VIDEO_TASKS, init_video_store
 from vllm_omni.entrypoints.openai.utils import get_stage_type, parse_lora_request
 from vllm_omni.entrypoints.openai.video_api_utils import decode_input_reference
 from vllm_omni.inputs.data import OmniDiffusionSamplingParams, OmniSamplingParams, OmniTextPrompt
@@ -306,8 +306,18 @@ async def omni_run_server_worker(listen_address, sock, args, client_config=None,
         app.include_router(router)
 
         await omni_init_app_state(engine_client, app.state, args)
+        video_metadata_backend = getattr(args, "video_metadata_store", "memory")
+        init_video_store(
+            backend=video_metadata_backend,
+            directory=getattr(
+                args,
+                "video_metadata_store_dir",
+                os.path.join(os.getenv("VLLM_OMNI_STORAGE_PATH", "/tmp/storage"), "metadata"),
+            ),
+        )
         # When restart after update video job status
-        await _reconcile_video_store_on_startup()
+        if video_metadata_backend == "diskcache":
+            await _reconcile_video_store_on_startup()
 
         # Conditionally register profiler endpoints based on stage YAML configs
         stage_configs = engine_client.stage_configs if hasattr(engine_client, "stage_configs") else None
@@ -1982,7 +1992,6 @@ async def _reconcile_video_store_on_startup() -> None:
     Because VIDEO_TASKS is in-memory, any job that was running or queued when
     the process last exited has no corresponding task after a restart.
     """
-    import time as _time
 
     orphaned_statuses = (VideoGenerationStatus.QUEUED, VideoGenerationStatus.IN_PROGRESS)
     jobs = await VIDEO_STORE.list_values()
@@ -1992,7 +2001,7 @@ async def _reconcile_video_store_on_startup() -> None:
                 job.id,
                 {
                     "status": VideoGenerationStatus.FAILED,
-                    "completed_at": int(_time.time()),
+                    "completed_at": int(time.time()),
                     "error": VideoError(
                         code="ProcessRestart",
                         message="Job was interrupted by a server restart and cannot be resumed.",
