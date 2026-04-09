@@ -306,18 +306,6 @@ async def omni_run_server_worker(listen_address, sock, args, client_config=None,
         app.include_router(router)
 
         await omni_init_app_state(engine_client, app.state, args)
-        video_metadata_backend = getattr(args, "video_metadata_store", "memory")
-        init_video_store(
-            backend=video_metadata_backend,
-            directory=getattr(
-                args,
-                "video_metadata_store_dir",
-                os.path.join(os.getenv("VLLM_OMNI_STORAGE_PATH", "/tmp/storage"), "metadata"),
-            ),
-        )
-        # When restart after update video job status
-        if video_metadata_backend == "diskcache":
-            await _reconcile_video_store_on_startup()
 
         # Conditionally register profiler endpoints based on stage YAML configs
         stage_configs = engine_client.stage_configs if hasattr(engine_client, "stage_configs") else None
@@ -846,6 +834,20 @@ async def omni_init_app_state(
 
     state.enable_server_load_tracking = args.enable_server_load_tracking
     state.server_load_metrics = 0
+
+    # init video metadata save backend
+    video_metadata_backend = getattr(args, "video_metadata_store", "memory")
+    init_video_store(
+        backend=video_metadata_backend,
+        directory=getattr(
+            args,
+            "video_metadata_store_dir",
+            os.path.join(os.getenv("VLLM_OMNI_STORAGE_PATH", "/tmp/storage"), "metadata"),
+        ),
+    )
+    # When restart after update video job status
+    if video_metadata_backend == "diskcache":
+        await _reconcile_video_store_on_startup()
 
 
 def Omnivideo(request: Request) -> OmniOpenAIServingVideo | None:
