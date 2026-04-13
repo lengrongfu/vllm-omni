@@ -2405,3 +2405,28 @@ async def stop_profile(raw_request: Request, request: ProfileRequest | None = No
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=f"Failed to stop profiler: {str(e)}"
         )
+
+
+@router.post("/sleep")
+async def sleep(raw_request: Request):
+    level = raw_request.query_params.get("level", "1")
+    engine_client = raw_request.app.state.engine_client
+    await engine_client.sleep(int(level))
+    return Response(status_code=200)
+
+
+@router.post("/wake_up")
+async def wake_up(raw_request: Request):
+    tags = raw_request.query_params.getlist("tags")
+    if tags == []:
+        tags = None
+    engine_client = raw_request.app.state.engine_client
+    await engine_client.wake_up(tags)
+    return Response(status_code=200)
+
+
+@router.get("/is_sleeping")
+async def is_sleeping(raw_request: Request):
+    engine_client = raw_request.app.state.engine_client
+    result = await engine_client.is_sleeping()
+    return JSONResponse(content={"is_sleeping": result})

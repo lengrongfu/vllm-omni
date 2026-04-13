@@ -37,3 +37,14 @@ Example:
 ```python
 omni = Omni(model=...,enable_sleep_mode=True)
 ```
+
+## API Usage
+
+### Sleep
+POST /sleep?level=1
+
+### Wake Up
+POST /wake_up
+
+### Check Status
+GET /is_sleeping
