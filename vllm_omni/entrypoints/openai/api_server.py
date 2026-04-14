@@ -2410,13 +2410,30 @@ async def stop_profile(raw_request: Request, request: ProfileRequest | None = No
 @router.post("/sleep")
 async def sleep(raw_request: Request):
     level = raw_request.query_params.get("level", "1")
-    engine_client = raw_request.app.state.engine_client
-    await engine_client.sleep(int(level))
-    return Response(status_code=200)
+    try:
+        engine_client = raw_request.app.state.engine_client
+        await engine_client.sleep(int(level))
+    except Exception as e:
+        logger.exception("Failed to sleep model: %s", e)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail=f"Failed to sleep engine: {e}",
+        )
 
 
 @router.post("/wake_up")
 async def wake_up(raw_request: Request):
+    """
+    Wake up the worker from sleep mode. See the sleep function
+    method for more details.
+
+    Args:
+        tags: An optional list of tags to reallocate the worker memory
+            for specific memory allocations. Values must be in
+            `("weights")`. If None, all memory is reallocated.
+            wake_up should be called with all tags (or None) before the
+            worker is used again.
+    """
     tags = raw_request.query_params.getlist("tags")
     if tags == []:
         tags = None
@@ -2425,8 +2442,22 @@ async def wake_up(raw_request: Request):
     return Response(status_code=200)
 
 
-@router.get("/is_sleeping")
-async def is_sleeping(raw_request: Request):
-    engine_client = raw_request.app.state.engine_client
-    result = await engine_client.is_sleeping()
-    return JSONResponse(content={"is_sleeping": result})
+@router.get("/sleep_info")
+async def sleep_info(raw_request: Request) -> JSONResponse:
+    """Return the current sleep level of the engine.
+
+    Response body: ``{"sleep_level": int | null}``
+        - ``null``   engine is awake (not sleeping).
+        - ``1``      weights are offloaded.
+        - ``2``      weights offloaded and KV caches saved/reset.
+    """
+    try:
+        engine_client = getattr(raw_request.app.state, "engine_client", None)
+        level = await engine_client.sleep_level()
+        result = await engine_client.is_sleeping()
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail=f"Failed to query sleep level: {e}",
+        )
+    return JSONResponse(content={"sleep_level": level, "is_sleeping": result})

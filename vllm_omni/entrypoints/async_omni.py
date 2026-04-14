@@ -75,6 +75,7 @@ class AsyncOmni(EngineClient, OmniBase):
         self._pause_cond: asyncio.Condition = asyncio.Condition()
         self._paused: bool = False
         self._is_sleeping: bool = False
+        self._sleep_level: int = -1
         self.final_output_task: asyncio.Task | None = None
 
         self.config_path = self.engine.config_path
@@ -648,6 +649,7 @@ class AsyncOmni(EngineClient, OmniBase):
         Best-effort: unsupported stages will emit a TODO result.
         """
         self._is_sleeping = True
+        self._sleep_level = level
         await self.collective_rpc(method="sleep", args=(level,))
 
     async def wake_up(self, tags: list[str] | None = None) -> None:
@@ -656,6 +658,7 @@ class AsyncOmni(EngineClient, OmniBase):
         Best-effort: unsupported stages will emit a TODO result.
         """
         self._is_sleeping = False
+        self._sleep_level = -1
         await self.collective_rpc(method="wake_up", args=(tags,))
 
     async def is_sleeping(self) -> bool:
@@ -665,6 +668,9 @@ class AsyncOmni(EngineClient, OmniBase):
         a real sleeping-state RPC. For now we track the requested state locally.
         """
         return self._is_sleeping
+
+    async def sleep_level(self) -> int:
+        return self._sleep_level
 
     async def add_lora(self, lora_request: LoRARequest) -> bool:
         """Load a new LoRA adapter into all stages.
