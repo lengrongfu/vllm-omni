@@ -75,7 +75,7 @@ class AsyncOmni(EngineClient, OmniBase):
         self._pause_cond: asyncio.Condition = asyncio.Condition()
         self._paused: bool = False
         self._is_sleeping: bool = False
-        self._sleep_level: int = -1
+        self._sleep_level: int = None
         self.final_output_task: asyncio.Task | None = None
 
         self.config_path = self.engine.config_path

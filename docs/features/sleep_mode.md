@@ -41,10 +41,22 @@ omni = Omni(model=...,enable_sleep_mode=True)
 ## API Usage
 
 ### Sleep
+To sleep current model, it can release GPU memory.
+
+```
 POST /sleep?level=1
+```
 
 ### Wake Up
-POST /wake_up
+To wake up current sleep model, it can occupancy GPU memory.
 
-### Check Status
-GET /is_sleeping
+```
+POST /wake_up
+```
+
+### Get Sleep info
+To search current model sleep info, about sleep level and whather sleep.
+
+```
+GET /sleep_info
+```

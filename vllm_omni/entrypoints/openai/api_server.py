@@ -121,6 +121,7 @@ logger = init_logger(__name__)
 router = APIRouter()
 
 profiler_router = APIRouter()
+sleep_router = APIRouter()
 
 
 def _should_enable_profiler_endpoints(stage_configs: list | None) -> bool:
@@ -312,6 +313,11 @@ async def omni_run_server_worker(listen_address, sock, args, client_config=None,
         if _should_enable_profiler_endpoints(stage_configs):
             logger.warning("Profiler endpoints are enabled. This should ONLY be used for local development!")
             app.include_router(profiler_router)
+
+        # Conditionally register sleep endpoints
+        if args.enable_sleep_mode:
+            logger.info("Sleep endpoints are enabled.")
+            app.include_router(sleep_router)
 
         vllm_config = await _get_vllm_config(engine_client)
 
@@ -2407,21 +2413,35 @@ async def stop_profile(raw_request: Request, request: ProfileRequest | None = No
         )
 
 
-@router.post("/sleep")
+@sleep_router.post("/sleep")
 async def sleep(raw_request: Request):
-    level = raw_request.query_params.get("level", "1")
+    raw_level = raw_request.query_params.get("level", "1")
+    _VALID_LEVELS = {1, 2}
+    try:
+        level = int(raw_level)
+    except ValueError:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail=f"Invalid 'level' value {raw_level!r}: must be an integer.",
+        )
+    if level not in _VALID_LEVELS:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail=f"Invalid 'level' value {level}: must be one of {sorted(_VALID_LEVELS)}.",
+        )
     try:
         engine_client = raw_request.app.state.engine_client
         await engine_client.sleep(int(level))
+        return JSONResponse(content="ok")
     except Exception as e:
         logger.exception("Failed to sleep model: %s", e)
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail=f"Failed to sleep engine: {e}",
+            detail=f"Failed to sleep model: {e}",
         )
 
 
-@router.post("/wake_up")
+@sleep_router.post("/wake_up")
 async def wake_up(raw_request: Request):
     """
     Wake up the worker from sleep mode. See the sleep function
@@ -2437,12 +2457,19 @@ async def wake_up(raw_request: Request):
     tags = raw_request.query_params.getlist("tags")
     if tags == []:
         tags = None
-    engine_client = raw_request.app.state.engine_client
-    await engine_client.wake_up(tags)
-    return Response(status_code=200)
+    try:
+        engine_client = raw_request.app.state.engine_client
+        await engine_client.wake_up(tags)
+        return JSONResponse(content="ok")
+    except Exception as e:
+        logger.exception("Failed to wake_up model: %s", e)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail=f"Failed to wake_up model: {e}",
+        )
 
 
-@router.get("/sleep_info")
+@sleep_router.get("/sleep_info")
 async def sleep_info(raw_request: Request) -> JSONResponse:
     """Return the current sleep level of the engine.
 
@@ -2452,7 +2479,7 @@ async def sleep_info(raw_request: Request) -> JSONResponse:
         - ``2``      weights offloaded and KV caches saved/reset.
     """
     try:
-        engine_client = getattr(raw_request.app.state, "engine_client", None)
+        engine_client = raw_request.app.state.engine_client
         level = await engine_client.sleep_level()
         result = await engine_client.is_sleeping()
     except Exception as e:

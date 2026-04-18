@@ -3,11 +3,12 @@
 
 from argparse import Namespace
 from http import HTTPStatus
+
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-import pytest
 
-from vllm_omni.entrypoints.openai.api_server import router
+from vllm_omni.entrypoints.openai.api_server import sleep_router
 
 
 class FakeEngine:
@@ -27,7 +28,7 @@ class FakeEngine:
     async def wake_up(self, tags: list[str] | None = None) -> None:
         self._is_sleeping = False
         self._sleep_level = None
-        self.wake_up_calls.append((tags, ))
+        self.wake_up_calls.append((tags,))
 
     async def is_sleeping(self) -> bool:
         return self._is_sleeping
@@ -39,20 +40,23 @@ class FakeEngine:
 @pytest.fixture
 def client() -> TestClient:
     app = FastAPI()
-    app.include_router(router)
+    app.include_router(sleep_router)
     app.state.engine_client = FakeEngine()
     app.state.args = Namespace(enable_sleep_mode=True)
     return TestClient(app, raise_server_exceptions=False)
 
 
 def test_sleep(client: TestClient):
-    assert client.post("/sleep").status_code == HTTPStatus.OK
+    assert client.post("/sleep?level=1").status_code == HTTPStatus.OK
 
-    client.post("/sleep")
+    client.post("/sleep?level=1")
     engine: FakeEngine = client.app.state.engine_client
     level, model = engine.sleep_calls[-1]
     assert level == 1
     assert model == "abort"
+
+    assert client.post("/sleep?level=3").status_code == HTTPStatus.BAD_REQUEST
+    assert client.post("/sleep?level=abc").status_code == HTTPStatus.BAD_REQUEST
 
     client.post("/sleep?level=2&mode=drain")
     engine: FakeEngine = client.app.state.engine_client
@@ -70,11 +74,11 @@ def test_wakeup(client: TestClient):
 
     client.post("/wake_up?tags=")
     engine: FakeEngine = client.app.state.engine_client
-    assert engine.wake_up_calls[-1] == ([''],)
+    assert engine.wake_up_calls[-1] == ([""],)
 
     client.post("/wake_up?tags=weights")
     engine: FakeEngine = client.app.state.engine_client
-    assert engine.wake_up_calls[-1] == (["weights"], )
+    assert engine.wake_up_calls[-1] == (["weights"],)
 
 
 def test_sleep_info(client: TestClient):
@@ -82,19 +86,10 @@ def test_sleep_info(client: TestClient):
     assert client.get("/sleep_info").status_code == HTTPStatus.OK
 
     client.post("/wake_up")
-    assert client.get("/sleep_info").json() == {
-        "sleep_level": None,
-        "is_sleeping": False
-    }
+    assert client.get("/sleep_info").json() == {"sleep_level": None, "is_sleeping": False}
 
     client.post("/sleep?level=1")
-    assert client.get("/sleep_info").json() == {
-        "sleep_level": 1,
-        "is_sleeping": True
-    }
+    assert client.get("/sleep_info").json() == {"sleep_level": 1, "is_sleeping": True}
 
     client.post("/sleep?level=2")
-    assert client.get("/sleep_info").json() == {
-        "sleep_level": 2,
-        "is_sleeping": True
-    }
+    assert client.get("/sleep_info").json() == {"sleep_level": 2, "is_sleeping": True}
