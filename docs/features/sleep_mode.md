@@ -55,7 +55,7 @@ POST /wake_up
 ```
 
 ### Get Sleep info
-To search current model sleep info, about sleep level and whather sleep.
+To search current model sleep info, about sleep level and whether sleep.
 
 ```
 GET /sleep_info
