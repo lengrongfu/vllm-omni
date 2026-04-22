@@ -42,7 +42,6 @@ with vLLM-Omni using multi-card parallelism. Two configurations are provided:
 **Distilled model (no CFG, recommended for distilled checkpoints):**
 
 ```bash
-
 vllm serve \
   --omni Wan-AI/Wan2.2-I2V-A14B-Diffusers \
   --use-hsdp \
@@ -54,9 +53,6 @@ vllm serve \
 **Official open-source model (with CFG):**
 
 ```bash
-export MINDIE_SD_FA_TYPE=ascend_laser_attention
-export MULTI_STREAM_MEMORY_REUSE=2
-
 vllm serve \
   --omni Wan-AI/Wan2.2-I2V-A14B-Diffusers \
   --use-hsdp \
