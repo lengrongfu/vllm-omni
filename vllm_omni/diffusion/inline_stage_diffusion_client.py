@@ -328,7 +328,7 @@ class InlineStageDiffusionClient:
             kwargs,
             None,
         )
-    
+
     def check_health(self) -> None:
         """Check if the inline diffusion engine and its workers are healthy."""
         if self._shutting_down:
