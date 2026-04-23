@@ -328,6 +328,12 @@ class InlineStageDiffusionClient:
             kwargs,
             None,
         )
+    
+    def check_health(self) -> None:
+        """Check if the inline diffusion engine and its workers are healthy."""
+        if self._shutting_down:
+            raise RuntimeError("InlineStageDiffusionClient is shutting down")
+        self._engine.executor.check_health()
 
     def shutdown(self) -> None:
         self._shutting_down = True
