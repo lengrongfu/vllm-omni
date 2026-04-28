@@ -44,7 +44,6 @@ with vLLM-Omni using multi-card parallelism. Two configurations are provided:
 ```bash
 vllm serve \
   --omni Wan-AI/Wan2.2-I2V-A14B-Diffusers \
-  --use-hsdp \
   --usp 4 \
   --vae-patch-parallel-size 4 \
   --vae-use-tiling
@@ -55,7 +54,6 @@ vllm serve \
 ```bash
 vllm serve \
   --omni Wan-AI/Wan2.2-I2V-A14B-Diffusers \
-  --use-hsdp \
   --usp 2 \
   --cfg 2 \
   --vae-patch-parallel-size 4 \
@@ -77,8 +75,6 @@ for complete client examples and request formats.
 
 - **Key flags:**
   - `--omni` — enables vLLM-Omni diffusion serving.
-  - `--use-hsdp` — enables Hybrid Sharded Data Parallelism for the DiT model
-    weights.
   - `--usp <N>` — Unified Sequence Parallelism degree.
   - `--cfg <N>` — Classifier-Free Guidance parallelism; set to 2 for models
     that require negative-prompt computation, omit for distilled models.
