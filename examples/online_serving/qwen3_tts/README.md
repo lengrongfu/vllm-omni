@@ -49,17 +49,17 @@ The default deploy config is located at `vllm_omni/deploy/qwen3_tts.yaml` and is
 # CustomVoice model (predefined speakers)
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --omni \
-    --port 8091
+    --port 8000
 
 # VoiceDesign model
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign \
     --omni \
-    --port 8091
+    --port 8000
 
 # Base model (voice cloning)
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-Base \
     --omni \
-    --port 8091
+    --port 8000
 ```
 
 If you have custom stage configs file, launch the server with command below
@@ -67,7 +67,7 @@ If you have custom stage configs file, launch the server with command below
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --stage-configs-path /path/to/stage_configs_file \
     --omni \
-    --port 8091
+    --port 8000
 ```
 
 #### Sync vs async-chunk mode
@@ -78,7 +78,7 @@ Qwen3-TTS supports both **chunked streaming** (default, lower latency) and
 and the pipeline automatically dispatches to the end-to-end codec processor:
 
 ```bash
-vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --omni --port 8091 \
+vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --omni --port 8000 \
     --no-async-chunk
 ```
 
@@ -136,7 +136,7 @@ python openai_speech_client.py \
 
 The Python client supports the following command-line arguments:
 
-- `--api-base`: API base URL (default: `http://localhost:8091`)
+- `--api-base`: API base URL (default: `http://localhost:8000`)
 - `--model` (or `-m`): Model name/path (default: `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice`)
 - `--task-type` (or `-t`): TTS task type. Options: `CustomVoice`, `VoiceDesign`, `Base`
 - `--text`: Text to synthesize (required)
@@ -152,7 +152,7 @@ The Python client supports the following command-line arguments:
 
 ```bash
 # Simple TTS request
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -161,7 +161,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
     }' --output output.wav
 
 # With style instruction
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "I am so excited!",
@@ -170,7 +170,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
     }' --output excited.wav
 
 # List available voices in CustomVoice models
-curl http://localhost:8091/v1/audio/voices
+curl http://localhost:8000/v1/audio/voices
 ```
 
 ### Using OpenAI SDK
@@ -178,7 +178,7 @@ curl http://localhost:8091/v1/audio/voices
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8091/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="none")
 
 response = client.audio.speech.create(
     model="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
@@ -195,7 +195,7 @@ response.stream_to_file("output.wav")
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "vivian",
@@ -342,7 +342,7 @@ Set `stream=true` with `response_format="pcm"` to receive raw PCM audio chunks a
 (one chunk per Code2Wav window, default 25 frames; configurable in the stage config):
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -439,7 +439,7 @@ To use the uniproc executor on a single-GPU setup, pass the
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-Base \
     --omni \
     --stage-configs-path vllm_omni/model_executor/stage_configs/qwen3_tts_uniproc.yaml \
-    --port 8091
+    --port 8000
 ```
 
 ## Limitations

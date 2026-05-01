@@ -20,7 +20,7 @@ Equivalent manual command:
 vllm serve Jonathan1909/Ming-flash-omni-2.0 \
     --stage-configs-path vllm_omni/model_executor/stage_configs/ming_flash_omni_tts.yaml \
     --host 0.0.0.0 \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --omni
 ```

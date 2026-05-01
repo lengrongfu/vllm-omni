@@ -15,7 +15,7 @@ An interactive Gradio demo is available with text-to-speech synthesis, voice clo
 ./run_gradio_demo.sh
 
 # Option 2: If server is already running
-python gradio_demo.py --api-base http://localhost:8091
+python gradio_demo.py --api-base http://localhost:8000
 ```
 
 Then open http://localhost:7860 in your browser.
@@ -29,7 +29,7 @@ Features:
 ## Launch the Server
 
 ```bash
-vllm serve fishaudio/s2-pro --omni --port 8091
+vllm serve fishaudio/s2-pro --omni --port 8000
 ```
 
 The deploy config is auto-loaded from `vllm_omni/deploy/fish_qwen3_omni.yaml`
@@ -47,7 +47,7 @@ Or use the convenience script:
 
 ```bash
 # Basic TTS
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -61,7 +61,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 Provide a reference audio (URL or base64 data URL) and its transcript:
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, this is a cloned voice.",
@@ -78,7 +78,7 @@ import httpx
 
 # Basic TTS
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "default",
@@ -111,7 +111,7 @@ python speech_client.py --text "Hello world" --stream --output output.pcm
 
 The CLI client supports:
 
-- `--api-base`: API base URL (default: `http://localhost:8091`)
+- `--api-base`: API base URL (default: `http://localhost:8000`)
 - `--model` (or `-m`): Model name (default: `fishaudio/s2-pro`)
 - `--text`: Text to synthesize (required)
 - `--ref-audio`: Reference audio for voice cloning (local path or URL)
@@ -125,7 +125,7 @@ The CLI client supports:
 Set `stream=true` with `response_format="pcm"` to receive raw PCM audio chunks as they are decoded:
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",

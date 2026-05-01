@@ -17,15 +17,15 @@ Each server instance runs a single model (specified at startup via `vllm serve <
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --deploy-config vllm_omni/deploy/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 
 # Fish Speech S2 Pro
-vllm serve fishaudio/s2-pro --omni --port 8091
+vllm serve fishaudio/s2-pro --omni --port 8000
 
 # Voxtral TTS
-vllm serve mistralai/Voxtral-4B-TTS-2603 --omni --port 8091
+vllm serve mistralai/Voxtral-4B-TTS-2603 --omni --port 8000
 ```
 
 ### Generate Speech
@@ -33,7 +33,7 @@ vllm serve mistralai/Voxtral-4B-TTS-2603 --omni --port 8091
 **Using curl:**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -48,7 +48,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "vivian",
@@ -66,7 +66,7 @@ with open("output.wav", "wb") as f:
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8091/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="none")
 
 response = client.audio.speech.create(
     model="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
@@ -189,7 +189,7 @@ Fields `ref_text` and `speaker_description` are omitted when not provided at upl
 **Usage Example:**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/voices \
+curl -X POST http://localhost:8000/v1/audio/voices \
   -F "audio_sample=@/path/to/voice_sample.wav" \
   -F "consent=user_consent_id" \
   -F "name=custom_voice_1" \
@@ -267,7 +267,7 @@ Delete an uploaded voice sample.
 **Usage Example:**
 
 ```bash
-curl -X DELETE http://localhost:8091/v1/audio/voices/custom_voice_1
+curl -X DELETE http://localhost:8000/v1/audio/voices/custom_voice_1
 ```
 
 ## Examples
@@ -275,7 +275,7 @@ curl -X DELETE http://localhost:8091/v1/audio/voices/custom_voice_1
 ### CustomVoice with Style Instruction
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "I am so excited!",
@@ -291,13 +291,13 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign \
     --deploy-config vllm_omni/deploy/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello world",
@@ -313,13 +313,13 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-Base \
     --deploy-config vllm_omni/deploy/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager
 ```
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, this is a cloned voice",
@@ -333,7 +333,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 
 Upload voice (speaker embedding only):
 ```bash
-curl -X POST http://localhost:8091/v1/audio/voices \
+curl -X POST http://localhost:8000/v1/audio/voices \
   -F "audio_sample=@/path/to/voice_sample.wav" \
   -F "consent=user_consent_id" \
   -F "name=custom_voice_1"
@@ -341,7 +341,7 @@ curl -X POST http://localhost:8091/v1/audio/voices \
 
 Upload voice with transcript (in-context cloning, higher quality):
 ```bash
-curl -X POST http://localhost:8091/v1/audio/voices \
+curl -X POST http://localhost:8000/v1/audio/voices \
   -F "audio_sample=@/path/to/voice_sample.wav" \
   -F "consent=user_consent_id" \
   -F "name=custom_voice_2" \
@@ -350,7 +350,7 @@ curl -X POST http://localhost:8091/v1/audio/voices \
 
 ### Use Uploaded Voice
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, this is a cloned voice",
@@ -429,7 +429,7 @@ Each item in the `items` array requires only `input` (the text). All other field
 **Basic batch with shared defaults:**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech/batch \
+curl -X POST http://localhost:8000/v1/audio/speech/batch \
     -H "Content-Type: application/json" \
     -d '{
         "items": [
@@ -444,7 +444,7 @@ curl -X POST http://localhost:8091/v1/audio/speech/batch \
 **Per-item overrides (different voices and formats):**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech/batch \
+curl -X POST http://localhost:8000/v1/audio/speech/batch \
     -H "Content-Type: application/json" \
     -d '{
         "items": [
@@ -458,7 +458,7 @@ curl -X POST http://localhost:8091/v1/audio/speech/batch \
 **Voice cloning with shared reference audio (Base task):**
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech/batch \
+curl -X POST http://localhost:8000/v1/audio/speech/batch \
     -H "Content-Type: application/json" \
     -d '{
         "items": [
@@ -480,7 +480,7 @@ import base64
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech/batch",
+    "http://localhost:8000/v1/audio/speech/batch",
     json={
         "items": [
             {"input": "First sentence."},
@@ -510,7 +510,7 @@ For best throughput, set both stages' `max_num_seqs` to ≥4 via `--stage-overri
 
 ```bash
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
-    --omni --port 8091 --trust-remote-code --enforce-eager \
+    --omni --port 8000 --trust-remote-code --enforce-eager \
     --stage-overrides '{"0":{"max_num_seqs":4,"gpu_memory_utilization":0.2},
                         "1":{"max_num_seqs":4,"gpu_memory_utilization":0.2}}'
 ```
@@ -588,7 +588,7 @@ Ensure you're using the correct model variant for your task type:
 
 ```bash
 # Check if server is responding
-curl http://localhost:8091/v1/audio/voices
+curl http://localhost:8000/v1/audio/voices
 ```
 
 ### Out of Memory
@@ -609,7 +609,7 @@ Enable debug logging:
 vllm serve Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
     --deploy-config vllm_omni/deploy/qwen3_tts.yaml \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager \
     --uvicorn-log-level debug

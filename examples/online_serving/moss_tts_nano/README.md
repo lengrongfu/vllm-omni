@@ -15,7 +15,7 @@ An interactive Gradio demo is available with multilingual voice presets, custom 
 ./run_gradio_demo.sh
 
 # Option 2: If server is already running
-python gradio_demo.py --api-base http://localhost:8091
+python gradio_demo.py --api-base http://localhost:8000
 ```
 
 Then open http://localhost:7860 in your browser.
@@ -29,7 +29,7 @@ Features:
 ## Launch the Server
 
 ```bash
-vllm serve OpenMOSS-Team/MOSS-TTS-Nano --omni --port 8091
+vllm serve OpenMOSS-Team/MOSS-TTS-Nano --omni --port 8000
 ```
 
 The deploy config at `vllm_omni/deploy/moss_tts_nano.yaml` auto-loads; no
@@ -48,7 +48,7 @@ Or use the convenience script:
 
 ```bash
 # Built-in voice preset
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "你好，这是语音合成测试。",
@@ -57,7 +57,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
     }' --output output.wav
 
 # English preset
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, this is MOSS-TTS-Nano.",
@@ -72,7 +72,7 @@ Provide a reference audio (base64 data URL) and its transcript:
 
 ```bash
 REF_AUDIO=$(base64 -w 0 /path/to/reference.wav)
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d "{
         \"input\": \"Hello, this is a cloned voice.\",
@@ -88,7 +88,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "你好，这是语音合成测试。",
         "voice": "Junhao",
@@ -104,7 +104,7 @@ with open("output.wav", "wb") as f:
 ### Streaming
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, streaming output from MOSS-TTS-Nano.",

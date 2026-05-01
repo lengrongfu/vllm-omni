@@ -51,7 +51,7 @@ vllm serve "$VOXCPM_MODEL" \
     --trust-remote-code \
     --enforce-eager \
     --omni \
-    --port 8091
+    --port 8000
 ```
 
 ## Send Requests
@@ -89,7 +89,7 @@ python openai_speech_client.py \
 ### Using curl
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "model": "OpenBMB/VoxCPM1.5",
@@ -101,7 +101,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 Voice cloning:
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "model": "OpenBMB/VoxCPM1.5",
@@ -115,7 +115,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 Streaming PCM:
 
 ```bash
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "model": "OpenBMB/VoxCPM1.5",
@@ -157,7 +157,7 @@ The serving benchmark reports TTFP and RTF:
 ```bash
 python benchmarks/voxcpm/vllm_omni/bench_tts_serve.py \
     --host 127.0.0.1 \
-    --port 8091 \
+    --port 8000 \
     --num-prompts 10 \
     --max-concurrency 1 \
     --result-dir /tmp/voxcpm_bench

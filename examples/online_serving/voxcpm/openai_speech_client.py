@@ -23,7 +23,7 @@ import os
 
 import httpx
 
-DEFAULT_API_BASE = "http://localhost:8091"
+DEFAULT_API_BASE = "http://localhost:8000"
 DEFAULT_API_KEY = "EMPTY"
 DEFAULT_MODEL = "OpenBMB/VoxCPM1.5"
 

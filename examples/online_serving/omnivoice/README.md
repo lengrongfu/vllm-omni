@@ -13,7 +13,7 @@
 ```bash
 vllm serve k2-fsa/OmniVoice \
     --omni \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code
 ```
 
@@ -29,7 +29,7 @@ Or use the convenience script:
 
 ```bash
 # Basic TTS (auto voice)
-curl -X POST http://localhost:8091/v1/audio/speech \
+curl -X POST http://localhost:8000/v1/audio/speech \
     -H "Content-Type: application/json" \
     -d '{
         "input": "Hello, how are you?",
@@ -44,7 +44,7 @@ curl -X POST http://localhost:8091/v1/audio/speech \
 import httpx
 
 response = httpx.post(
-    "http://localhost:8091/v1/audio/speech",
+    "http://localhost:8000/v1/audio/speech",
     json={
         "input": "Hello, how are you?",
         "voice": "default",
@@ -62,7 +62,7 @@ with open("output.wav", "wb") as f:
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8091/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="none")
 
 response = client.audio.speech.create(
     model="k2-fsa/OmniVoice",
@@ -87,7 +87,7 @@ python speech_client.py --text "Bonjour, comment allez-vous?" --language French
 
 The CLI client supports:
 
-- `--api-base`: API base URL (default: `http://localhost:8091`)
+- `--api-base`: API base URL (default: `http://localhost:8000`)
 - `--model` (or `-m`): Model name (default: `k2-fsa/OmniVoice`)
 - `--text`: Text to synthesize (required)
 - `--response-format`: Audio format: wav, mp3, flac, pcm, aac, opus (default: wav)

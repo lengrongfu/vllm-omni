@@ -32,7 +32,7 @@ echo "Stage config: $STAGE_CONFIG"
 vllm serve "$MODEL" \
     --stage-configs-path "$STAGE_CONFIG" \
     --host 0.0.0.0 \
-    --port 8091 \
+    --port 8000 \
     --trust-remote-code \
     --enforce-eager \
     --omni

@@ -112,7 +112,7 @@ def test_split_drops_unclassified():
     raw = {
         "max_num_seqs": 64,  # engine
         "host": "0.0.0.0",  # unclassified (server)
-        "port": 8091,  # unclassified (server)
+        "port": 8000,  # unclassified (server)
         "ssl_keyfile": "key.pem",  # unclassified (server)
     }
     orch, engine = split_kwargs(raw, engine_cls=_FakeEngineArgs)
@@ -138,7 +138,7 @@ def test_split_mixed_real_world():
         "log_stats": False,
         # server / unclassified
         "host": "0.0.0.0",
-        "port": 8091,
+        "port": 8000,
         "api_key": "secret",
         # None values
         "ray_address": None,
@@ -185,7 +185,7 @@ def test_user_typed_unclassified_warns(caplog):
 def test_unclassified_without_user_typed_silent(caplog):
     """Without user_typed, unclassified keys drop silently (argparse defaults
     for server flags shouldn't spam logs on every launch)."""
-    raw = {"host": "0.0.0.0", "port": 8091, "max_num_seqs": 64}
+    raw = {"host": "0.0.0.0", "port": 8000, "max_num_seqs": 64}
     with caplog.at_level(logging.WARNING, logger="vllm_omni.engine.arg_utils"):
         split_kwargs(raw, engine_cls=_FakeEngineArgs, user_typed=None)
     # No warnings because we don't know these were user-typed.
